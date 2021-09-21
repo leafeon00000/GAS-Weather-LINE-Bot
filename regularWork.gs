@@ -12,15 +12,11 @@ function regularWork() {
   // 対象の範囲を取得する。
   let registList = SHEET.getRange(startRow,startCol,endRow,endCol).getDisplayValues();
 
-  let replayText = "";
+  let replayTextList = [];
+  let deleteList = [];
 
   // 天気予報を取得して返信用の文章を作成する。
   for (let i in registList) {
-
-    // 最初の行以外は末尾の文章に改行を挟む
-    if (i != 0) {
-      replayText = replayText + "\n";
-    }
 
     // 情報の整理
     let place = registList[i][0];
@@ -33,12 +29,21 @@ function regularWork() {
     let targetDayForComp = new Date(targetDay + " 00:00:00");
     let dayDiff = (Math.floor((targetDayForComp - today)/1000));
 
+    let txt = "";
+
     // 日付の差が8日以上大きい場合はまだ予報が出ていないためreturn。
     if (dayDiff >= 691200) {
-      replayText = replayText + "ℹ️" + targetDay.replace(/-/g,"/") + "の"　+ place + 
-            "の天気予報はまだ発表されていませんので、もうしばらくお待ちください☀️☁️☂️"
-    } else {
+      txt = "ℹ️" + targetDay.replace(/-/g,"/") + "の"　+ place + 
+            "の天気予報はまだ発表されていませんので、もうしばらくお待ちください☀️☁️☂️";
+      replayTextList.push(txt);
+    
+    } else if (dayDiff <= 0) {
+      // 日付の差が０以下の場合、過去のデータになるのでリストに格納し、for文の処理が終わった後にまとめて削除する。
+      // スプレッドシートからの削除の都合上、unshiftで行番号を追加していく。
+      deleteList.unshift(parseInt(i) + 2);
+      continue;
 
+    } else {
       // 天気予報を取得する。
       let weatherInfo = getWeather(lon,lat,targetDay);
 
@@ -47,14 +52,17 @@ function regularWork() {
         
         // エラーの場合
         case 9:
-          replayText = replayText + "⚠️" + targetDay.replace(/-/g,"/") + "の" + place +　
+          txt = "⚠️" + targetDay.replace(/-/g,"/") + "の" + place +　
             "の天気予報は取得の際にエラーが発生しました。\nしばらくお待ちいただくか、管理者にお尋ねください。" + weatherInfo[1];
+          replayTextList.push(txt);
+          
           break;
         
         // まだ予報が出ていない場合
         case 1:
-          replayText = replayText + "ℹ️" + targetDay.replace(/-/g,"/") + "の"　+ place + 
-            "の天気予報はまだ発表されていませんので、もうしばらくお待ちください☀️☁️☂️"
+          txt = "ℹ️" + targetDay.replace(/-/g,"/") + "の"　+ place + 
+            "の天気予報はまだ発表されていませんので、もうしばらくお待ちください☀️☁️☂️";
+          replayTextList.push(txt);
           break;
 
         // 正常な場合
@@ -82,11 +90,19 @@ function regularWork() {
               break;
           }
 
-          replayText = replayText + "ℹ️" +  targetDay.replace(/-/g,"/")　+ "の" + place +"の予報は、" + weatherInfo[1] + icon
+          txt = "ℹ️" +  targetDay.replace(/-/g,"/")　+ "の" + place +"の予報は、" + weatherInfo[1] + icon
             + "、最高気温は" + weatherInfo[3] + "℃、最低気温は" + weatherInfo[4] + "℃です✨";
+          replayTextList.push(txt);
           break;
       }
     }
+  }
+
+  let replayText = replayTextList.join("\n");
+
+  // 過去のデータを削除していく。
+  for (let j in deleteList) {
+    SHEET.deleteRow(deleteList[j]);
   }
 
   let payload = {
