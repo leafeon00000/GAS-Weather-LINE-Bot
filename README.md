@@ -4,4 +4,4 @@
 GASのアプリのため、pullするためには[Google Apps Script GitHub アシスタント](https://chrome.google.com/webstore/detail/google-apps-script-github/lfjcgcmkmjjlieihflfhjopckgpelofo?hl=ja)が必要。
 
 当アプリの詳細は以下から。
-* [【GAS】未来の特定の場所の天気を毎日お知らせしてくれるLineBot（前編）](https://qiita.com/leafeon00000/items/bf8697c3e7932d4a9045)
+* [【GAS】特定の場所の天気予報をその日まで毎日お知らせしてくれるLineBot（前編）](https://qiita.com/leafeon00000/items/bf8697c3e7932d4a9045)
