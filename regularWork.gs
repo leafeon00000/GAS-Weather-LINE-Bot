@@ -45,7 +45,7 @@ function regularWork() {
 
     } else {
       // 天気予報を取得する。
-      let weatherInfo = getWeather(lon,lat,targetDay);
+      let weatherInfo = getWeather([lon,lat,targetDay]);
 
       // 取得した情報から処理を決める。
       switch(weatherInfo[0]) {
