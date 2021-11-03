@@ -9,6 +9,11 @@ function regularWork() {
   const endRow = SHEET.getLastRow() - 1;
   const endCol = 4;
 
+  // データがない場合はreturnする。
+  if(endRow == 0) {
+    return;
+  }
+
   // 対象の範囲を取得する。
   let registList = SHEET.getRange(startRow,startCol,endRow,endCol).getDisplayValues();
 
@@ -25,20 +30,21 @@ function regularWork() {
     let targetDay = registList[i][3];
 
     // 8日以上先の天気予報は発表されていないため日付の比較をする。
-    let today = new Date();
+    let today = Utilities.formatDate(new Date(),'Asia/Tokyo', 'yyyyMMdd');
     let targetDayForComp = new Date(targetDay + " 00:00:00");
-    let dayDiff = (Math.floor((targetDayForComp - today)/1000));
+    targetDayForComp = Utilities.formatDate(targetDayForComp,'Asia/Tokyo', 'yyyyMMdd');
+    let dayDiff = targetDayForComp - today;
 
     let txt = "";
 
     // 日付の差が8日以上大きい場合はまだ予報が出ていないためreturn。
-    if (dayDiff >= 691200) {
+    if (dayDiff >= 8) {
       txt = "ℹ️" + targetDay.replace(/-/g,"/") + "の"　+ place + 
             "の天気予報はまだ発表されていませんので、もうしばらくお待ちください☀️☁️☂️";
       replayTextList.push(txt);
     
-    } else if (dayDiff <= 0) {
-      // 日付の差が０以下の場合、過去のデータになるのでリストに格納し、for文の処理が終わった後にまとめて削除する。
+    } else if (dayDiff < 0) {
+      // 日付の差が０未満の場合、過去のデータになるのでリストに格納し、for文の処理が終わった後にまとめて削除する。
       // スプレッドシートからの削除の都合上、unshiftで行番号を追加していく。
       deleteList.unshift(parseInt(i) + 2);
       continue;
@@ -98,11 +104,19 @@ function regularWork() {
     }
   }
 
-  let replayText = replayTextList.join("\n");
-
   // 過去のデータを削除していく。
   for (let j in deleteList) {
     SHEET.deleteRow(deleteList[j]);
+  }
+
+  // 返信用のテキストを作成する。
+  let replayText = "";
+
+  // 返信用のテキストがない場合returnする。
+  if (replayTextList.length == 0) {
+    return;
+  }else {
+    replayText = replayTextList.join("\n");
   }
 
   let payload = {
