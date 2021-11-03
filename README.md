@@ -5,3 +5,4 @@ GASのアプリのため、pullするためには[Google Apps Script GitHub ア�
 
 当アプリの詳細は以下から。
 * [【GAS】特定の場所の天気予報を指定の日まで毎日お知らせしてくれるLineBot（前編）](https://qiita.com/leafeon00000/items/bf8697c3e7932d4a9045)
+* [【GAS】特定の場所の天気予報を指定の日まで毎日お知らせしてくれるLineBot（後編）](https://qiita.com/leafeon00000/items/1fd3ea94f5ec7cbf83f5)
