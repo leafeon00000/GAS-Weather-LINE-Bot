@@ -9,6 +9,11 @@ function regularWork() {
   const endRow = SHEET.getLastRow() - 1;
   const endCol = 4;
 
+  // データがない場合はreturnする。
+  if(endRow == 0) {
+    return;
+  }
+
   // 対象の範囲を取得する。
   let registList = SHEET.getRange(startRow,startCol,endRow,endCol).getDisplayValues();
 
@@ -99,11 +104,19 @@ function regularWork() {
     }
   }
 
-  let replayText = replayTextList.join("\n");
-
   // 過去のデータを削除していく。
   for (let j in deleteList) {
     SHEET.deleteRow(deleteList[j]);
+  }
+
+  // 返信用のテキストを作成する。
+  let replayText = "";
+
+  // 返信用のテキストがない場合returnする。
+  if (replayTextList.length == 0) {
+    return;
+  }else {
+    replayText = replayTextList.join("\n");
   }
 
   let payload = {
